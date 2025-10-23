@@ -15,7 +15,7 @@ import fake_store_app.composeapp.generated.resources.appicon
 import org.example.fake_store_app.auth.LoginScreen
 
 object SplashScreen : Screen {
-    @OptIn(ExperimentalResourceApi::class)
+
     @Composable
     override fun Content() {
         val navigator = cafe.adriel.voyager.navigator.LocalNavigator.currentOrThrow
@@ -35,7 +35,7 @@ object SplashScreen : Screen {
                 showSplash = false
             }
         } else {
-            navigator.replace(LoginScreen) // ✅ Replace splash with login
+            navigator.replace(LoginScreen)
         }
     }
 }
