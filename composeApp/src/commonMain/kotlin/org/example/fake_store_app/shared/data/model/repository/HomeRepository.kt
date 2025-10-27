@@ -8,6 +8,7 @@ import org.example.fake_store_app.shared.data.model.api.auth.home.HomeApi
 interface HomeRepository {
     suspend fun getAllProducts(): List<ProductModel>
     suspend fun getAllCategories(): List<MainCategoryModel>
+    suspend fun getSearchData(searchData: String): List<ProductModel>
 }
 
 
@@ -18,6 +19,10 @@ class HomeRepositoryImpl(private val api: HomeApi) : HomeRepository {
 
     override suspend fun getAllCategories(): List<MainCategoryModel> {
         return api.getCategories()
+    }
+
+    override suspend fun getSearchData(searchData : String): List<ProductModel> {
+        return api.searchProduct(searchData)
     }
 
 }

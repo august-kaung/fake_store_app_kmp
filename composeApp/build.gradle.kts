@@ -17,8 +17,7 @@ kotlin {
     }
 
     listOf(
-        iosArm64(),
-        iosSimulatorArm64()
+        iosArm64(), iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
@@ -27,11 +26,13 @@ kotlin {
     }
 
     sourceSets {
-        val ktorVersion = "3.3.1"
+        val ktorVersion = "2.3.1"
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+            implementation("io.coil-kt:coil-compose:2.4.0")
+
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -49,6 +50,9 @@ kotlin {
             implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
             implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
+            implementation("org.jetbrains.skiko:skiko:0.8.15")
             implementation("media.kamel:kamel-image:0.9.5")
 
 
@@ -91,5 +95,6 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+
 }
 

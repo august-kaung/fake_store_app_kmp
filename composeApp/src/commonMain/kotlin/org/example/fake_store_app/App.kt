@@ -5,6 +5,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.text.input.KeyboardType
 import cafe.adriel.voyager.navigator.Navigator
 
+
 @Composable
 fun BorderedTextField(hintText: String, keyboardType: KeyboardType = KeyboardType.Text) {
     var text by remember { mutableStateOf("") }

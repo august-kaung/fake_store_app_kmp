@@ -10,7 +10,7 @@ import org.example.fake_store_app.shared.utils.HttpClientProvider.client
 interface HomeApi {
     suspend fun getAllProducts(): List<ProductModel>
     suspend fun getCategories(): List<MainCategoryModel>
-    suspend fun searchProduct()
+    suspend fun searchProduct(searchData: String): List<ProductModel>
     suspend fun getProductByProductId()
     suspend fun getProductByCategoryId()
 
@@ -25,9 +25,12 @@ class HomeApiImpl : BaseApi(client), HomeApi {
         return gett<List<MainCategoryModel>>("categories", isLoginType = false)
     }
 
-    override suspend fun searchProduct() {
-        TODO("Not yet implemented")
+    override suspend fun searchProduct(searchData: String): List<ProductModel> {
+
+        return gett<List<ProductModel>>("products/?title=$searchData", isLoginType = false)
+
     }
+
 
     override suspend fun getProductByProductId() {
         TODO("Not yet implemented")
