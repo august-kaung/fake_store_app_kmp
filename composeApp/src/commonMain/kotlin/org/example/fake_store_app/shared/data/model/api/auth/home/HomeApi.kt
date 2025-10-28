@@ -11,7 +11,7 @@ interface HomeApi {
     suspend fun getAllProducts(): List<ProductModel>
     suspend fun getCategories(): List<MainCategoryModel>
     suspend fun searchProduct(searchData: String): List<ProductModel>
-    suspend fun getProductByProductId()
+    suspend fun getProductByProductId(pid: Int): ProductModel
     suspend fun getProductByCategoryId()
 
 }
@@ -32,8 +32,9 @@ class HomeApiImpl : BaseApi(client), HomeApi {
     }
 
 
-    override suspend fun getProductByProductId() {
-        TODO("Not yet implemented")
+    override suspend fun getProductByProductId(pid: Int): ProductModel {
+        return gett<ProductModel>("products/$pid", isLoginType = false)
+
     }
 
     override suspend fun getProductByCategoryId() {

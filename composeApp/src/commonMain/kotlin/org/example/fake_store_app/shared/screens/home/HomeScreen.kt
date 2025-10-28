@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -58,7 +59,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 
 import fake_store_app.composeapp.generated.resources.Res
 import fake_store_app.composeapp.generated.resources.appicon
@@ -81,6 +86,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 import org.example.fake_store_app.primaryColor
+import org.example.fake_store_app.shared.components.ViewModelStore
 import org.example.fake_store_app.shared.data.model.ProductModel
 import org.example.fake_store_app.shared.presentation.auth.HomeViewModel
 import org.jetbrains.compose.resources.DrawableResource
@@ -100,6 +106,12 @@ object HomeScreen : Screen {
 
     @Composable
     override fun Content() {
+        LaunchedEffect(Unit) {
+            ViewModelStore.homeViewModel.loadProducts()
+            ViewModelStore.homeViewModel.loadCategories()
+
+
+        }
         var selectedTab by remember { mutableStateOf<BottomNavItem>(BottomNavItem.Home) }
         var appBarText by remember { mutableStateOf<String>("Fancy Online Shop") }
 
@@ -139,8 +151,8 @@ object HomeScreen : Screen {
             ) {
                 when (selectedTab) {
                     is BottomNavItem.Home -> RealHome()
-                    is BottomNavItem.Favorite -> Text("Favorites Screen")
-                    is BottomNavItem.Cart -> Text("Cart Screen")
+                    is BottomNavItem.Favorite -> FavoriteScreen.Content()
+                    is BottomNavItem.Cart -> CartScreen.Content()
                     is BottomNavItem.Settings -> Text("Settings Screen")
                 }
             }
@@ -164,11 +176,14 @@ fun ProductGrid(products: List<ProductModel>) {
     }
 }
 
+@OptIn(InternalVoyagerApi::class)
 @Composable
 fun ProductCard(product: ProductModel) {
+    val navigator = LocalNavigator.currentOrThrow
     Card(
-        modifier = Modifier.fillMaxWidth().height(200.dp), elevation = CardDefaults.cardElevation(4.dp)
-    ) {
+        modifier = Modifier.fillMaxWidth().height(200.dp), elevation = CardDefaults.cardElevation(4.dp), onClick = {
+            navigator.push(DetailScreen(product.id))
+        }) {
         Box(modifier = Modifier.fillMaxSize()) {
             // Background image
             ProductImage(
@@ -197,11 +212,12 @@ fun ProductCard(product: ProductModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RealHome(viewModel: HomeViewModel = remember { HomeViewModel() }) {
-    LaunchedEffect(Unit) {
-        viewModel.loadProducts()
-        viewModel.loadCategories()
-    }
+//fun RealHome(viewModel: HomeViewModel = remember { HomeViewModel() }) {
+fun RealHome(viewModel: HomeViewModel = remember { ViewModelStore.homeViewModel }) {
+
+
+
+
 
     var searchText by remember { mutableStateOf("") }
     val products by viewModel.products.collectAsState()
@@ -305,12 +321,15 @@ fun RealHome(viewModel: HomeViewModel = remember { HomeViewModel() }) {
 
 
 @Composable
-fun ProductImage(url: String, modifier: Modifier = Modifier) {
+fun ProductImage(url: String, modifier: Modifier = Modifier, isFav: Boolean = false, isCart: Boolean = false) {
     if (url == "https://placehold.co/600x400") {
         Image(
             painter = painterResource(Res.drawable.appicon),
             contentDescription = null,
-            modifier = modifier.fillMaxWidth().fillMaxHeight().clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)),
+            modifier = if (isFav) modifier.width(100.dp).height(100.dp)
+                .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)) else if (isCart) modifier.width(100.dp)
+                .height(100.dp)
+            else modifier.fillMaxWidth().fillMaxHeight().clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)),
             contentScale = ContentScale.Crop
         )
 
@@ -318,7 +337,10 @@ fun ProductImage(url: String, modifier: Modifier = Modifier) {
         KamelImage(
             resource = asyncPainterResource(url),
             contentDescription = null,
-            modifier = modifier.fillMaxWidth().fillMaxHeight().clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)),
+            modifier = if (isFav) modifier.width(100.dp).height(100.dp)
+                .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)) else if (isCart) modifier.width(100.dp)
+                .height(100.dp)
+            else modifier.fillMaxWidth().fillMaxHeight().clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)),
             contentScale = ContentScale.Crop,
             onLoading = {
                 Box(
@@ -327,7 +349,11 @@ fun ProductImage(url: String, modifier: Modifier = Modifier) {
                     Image(
                         painter = painterResource(Res.drawable.appicon),
                         contentDescription = null,
-                        modifier = modifier,
+                        modifier = if (isFav) modifier.width(100.dp).height(100.dp)
+                            .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)) else if (isCart) modifier.width(
+                            100.dp
+                        ).height(100.dp)
+                        else modifier,
                         contentScale = ContentScale.Crop
                     )
                 }
@@ -336,7 +362,12 @@ fun ProductImage(url: String, modifier: Modifier = Modifier) {
                 Image(
                     painter = painterResource(Res.drawable.appicon),
                     contentDescription = null,
-                    modifier = modifier,
+                    modifier = if (isFav) modifier.width(100.dp).height(100.dp).clip(
+                        RoundedCornerShape(
+                            topStart = 8.dp, topEnd = 8.dp
+                        )
+                    ) else if (isCart) modifier.width(100.dp).height(100.dp)
+                    else modifier,
                     contentScale = ContentScale.Crop
                 )
             })

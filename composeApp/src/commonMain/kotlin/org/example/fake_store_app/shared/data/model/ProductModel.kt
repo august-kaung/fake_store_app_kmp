@@ -12,5 +12,6 @@ data class ProductModel(
     val price: Int,
     val slug: String,
     val title: String,
-    val updatedAt: String
+    val updatedAt: String,
+    var qty: Int = 1,
 )

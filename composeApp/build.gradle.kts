@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
+
+
 }
 
 kotlin {
@@ -27,12 +29,15 @@ kotlin {
 
     sourceSets {
         val ktorVersion = "2.3.1"
+        val sqlDelightVersion = "1.5.5"
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
             implementation("io.coil-kt:coil-compose:2.4.0")
 
+            implementation("com.squareup.sqldelight:android-driver:${sqlDelightVersion}")
+            implementation("androidx.compose.material:material:1.5.4")
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -56,12 +61,19 @@ kotlin {
             implementation("media.kamel:kamel-image:0.9.5")
 
 
+            implementation("com.squareup.sqldelight:runtime:${sqlDelightVersion}")
+            implementation("com.squareup.sqldelight:coroutines-extensions:${sqlDelightVersion}")
+
+
+
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
         iosMain.dependencies {
             implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+            implementation("com.squareup.sqldelight:native-driver:${sqlDelightVersion}")
         }
     }
 }
