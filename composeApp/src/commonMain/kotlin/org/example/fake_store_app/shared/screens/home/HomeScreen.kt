@@ -47,6 +47,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -95,23 +96,27 @@ import org.jetbrains.skia.Image as SkiaImage
 
 
 object HomeScreen : Screen {
+
+
     sealed class BottomNavItem(val route: String, val label: String, val icon: DrawableResource) {
         object Home : BottomNavItem("home", "Home", Res.drawable.base)
         object Favorite : BottomNavItem("favorite", "Favorite", Res.drawable.favorite)
         object Cart : BottomNavItem("cart", "Cart", Res.drawable.cart)
-        object Settings : BottomNavItem("settings", "Settings", Res.drawable.setting)
+        object Settinggs : BottomNavItem("settings", "Settings", Res.drawable.setting)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
 
     @Composable
     override fun Content() {
-        LaunchedEffect(Unit) {
-            ViewModelStore.homeViewModel.loadProducts()
-            ViewModelStore.homeViewModel.loadCategories()
+        println("HomeScreen created")
+
+            LaunchedEffect(Unit) {
+                ViewModelStore.homeViewModel.loadOnce()
 
 
-        }
+            }
+
         var selectedTab by remember { mutableStateOf<BottomNavItem>(BottomNavItem.Home) }
         var appBarText by remember { mutableStateOf<String>("Fancy Online Shop") }
 
@@ -125,14 +130,14 @@ object HomeScreen : Screen {
         }, bottomBar = {
             NavigationBar {
                 listOf(
-                    BottomNavItem.Home, BottomNavItem.Favorite, BottomNavItem.Cart, BottomNavItem.Settings
+                    BottomNavItem.Home, BottomNavItem.Favorite, BottomNavItem.Cart, BottomNavItem.Settinggs
                 ).forEach { item ->
                     NavigationBarItem(selected = selectedTab == item, onClick = {
                         when (item) {
                             is BottomNavItem.Home -> appBarText = "Fancy Online Shop"
                             is BottomNavItem.Favorite -> appBarText = "Favorite"
                             is BottomNavItem.Cart -> appBarText = "Cart"
-                            is BottomNavItem.Settings -> appBarText = "Setting"
+                            is BottomNavItem.Settinggs -> appBarText = "Setting"
                         }
                         selectedTab = item
 
@@ -153,7 +158,7 @@ object HomeScreen : Screen {
                     is BottomNavItem.Home -> RealHome()
                     is BottomNavItem.Favorite -> FavoriteScreen.Content()
                     is BottomNavItem.Cart -> CartScreen.Content()
-                    is BottomNavItem.Settings -> Text("Settings Screen")
+                    is BottomNavItem.Settinggs -> SettingScreen.Content()
                 }
             }
         }
@@ -214,9 +219,6 @@ fun ProductCard(product: ProductModel) {
 @Composable
 //fun RealHome(viewModel: HomeViewModel = remember { HomeViewModel() }) {
 fun RealHome(viewModel: HomeViewModel = remember { ViewModelStore.homeViewModel }) {
-
-
-
 
 
     var searchText by remember { mutableStateOf("") }

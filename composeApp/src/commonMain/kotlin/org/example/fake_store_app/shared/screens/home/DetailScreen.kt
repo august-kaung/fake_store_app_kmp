@@ -28,6 +28,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -37,6 +39,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -63,6 +66,7 @@ import fake_store_app.composeapp.generated.resources.info
 import fake_store_app.composeapp.generated.resources.minus
 import fake_store_app.composeapp.generated.resources.plus
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.example.fake_store_app.primaryColor
 import org.example.fake_store_app.shared.components.ViewModelStore
@@ -81,7 +85,7 @@ data class DetailScreen(var pid: Int) : Screen {
     override fun Content() {
         var productDetails by remember { mutableStateOf<ProductModel?>(null) }
         var isLoading by remember { mutableStateOf(true) }
-
+        val snackbarHostState = remember { SnackbarHostState() }
 
         val navigator = LocalNavigator.currentOrThrow
         LaunchedEffect(pid) {
@@ -97,11 +101,9 @@ data class DetailScreen(var pid: Int) : Screen {
                 isLoading = false
             }
         }
-        Scaffold(
-
-            modifier = Modifier.fillMaxSize(), topBar = {
-                TopAppBar(
-                    navigationIcon = {
+        Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }, modifier = Modifier.fillMaxSize(), topBar = {
+            TopAppBar(
+                navigationIcon = {
                     IconButton(onClick = { navigator.pop() }) {
                         Icon(
                             modifier = Modifier.size(20.dp),
@@ -123,8 +125,8 @@ data class DetailScreen(var pid: Int) : Screen {
                 }, colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
                 )
-                )
-            }
+            )
+        }
 
         ) { padding ->
             Box(
@@ -132,7 +134,7 @@ data class DetailScreen(var pid: Int) : Screen {
             ) {
                 when {
                     isLoading -> CircularProgressIndicator()
-                    productDetails != null -> DetailScreenView(productDetails!!)
+                    productDetails != null -> DetailScreenView(productDetails!!, snackbarHostState)
                     else -> Text("Failed to load product.")
                 }
             }
@@ -142,9 +144,9 @@ data class DetailScreen(var pid: Int) : Screen {
 }
 
 @Composable
-fun DetailScreenView(product: ProductModel) {
+fun DetailScreenView(product: ProductModel, snackbarHostState: SnackbarHostState) {
 
-
+    val coroutineScope = rememberCoroutineScope()
     var count by remember { mutableStateOf<Int>(1) }
 
     var favoriteViewModel = ViewModelStore.favoriteViewModel
@@ -220,6 +222,9 @@ fun DetailScreenView(product: ProductModel) {
             }
             IconButton(onClick = {
                 ViewModelStore.cartViewModel.addToCart(product, count)
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar("Added to cart: ${product.title} x $count")
+                }
             }) {
                 Icon(
                     tint = primaryColor,

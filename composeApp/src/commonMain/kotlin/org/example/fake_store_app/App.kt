@@ -11,11 +11,11 @@ fun BorderedTextField(hintText: String, keyboardType: KeyboardType = KeyboardTyp
     var text by remember { mutableStateOf("") }
 
 }
-
+var database : AppDatabase ?= null
 @Composable
 
-fun App() {
-
+fun App(db : AppDatabase) {
+    database = db
     Navigator(SplashScreen)
 
 }

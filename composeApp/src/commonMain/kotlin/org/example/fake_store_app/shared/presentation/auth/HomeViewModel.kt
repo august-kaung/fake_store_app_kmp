@@ -17,6 +17,15 @@ class HomeViewModel(private val repository: HomeRepository = HomeRepositoryImpl(
     val products: StateFlow<List<ProductModel>> = _products
     val categories: StateFlow<List<MainCategoryModel>> = _categories
     val isLoading: StateFlow<Boolean> = _isLoading
+    private var hasLoaded = false
+
+    suspend fun loadOnce() {
+        if (!hasLoaded) {
+            hasLoaded = true
+            loadProducts()
+            loadCategories()
+        }
+    }
 
 
     suspend fun loadProducts(isSearch: Boolean = false, query: String = "") {

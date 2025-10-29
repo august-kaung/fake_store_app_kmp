@@ -20,7 +20,9 @@ import fake_store_app.composeapp.generated.resources.Res
 import fake_store_app.composeapp.generated.resources.appicon
 import kotlinx.coroutines.delay
 import org.example.fake_store_app.shared.screens.auth.LoginScreen
+import org.example.fake_store_app.shared.screens.home.HomeScreen
 import org.jetbrains.compose.resources.painterResource
+import prefs.Prefs
 
 object SplashScreen : Screen {
 
@@ -44,7 +46,13 @@ object SplashScreen : Screen {
                 showSplash = false
             }
         } else {
-            navigator.replace(LoginScreen)
+            var res = Prefs.getBoolean("islogin", false)
+            if(res){
+                navigator.replace(HomeScreen)
+            }else{
+                navigator.replace(LoginScreen)
+
+            }
         }
     }
 }

@@ -50,6 +50,8 @@ import org.jetbrains.compose.resources.painterResource
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import org.example.fake_store_app.database
+import org.example.fakestoreapp.Order_items
 
 
 object CartScreen : Screen {
@@ -59,6 +61,20 @@ object CartScreen : Screen {
     override fun Content() {
 
         val navigator = LocalNavigator.currentOrThrow
+        val repo = org.example.fake_store_app.shared.repositories.OrderRepository(
+            database!!
+        )
+
+        fun getOrderHistory(): List<Order_items> = repo.getOrders()
+        fun confirmCheckout(cartItems: List<ProductModel>) {
+            var result = repo.getNextSlipNo()
+            var tempOrderId = result
+            cartItems.forEach { product ->
+                repo.saveOrder(product, tempOrderId)
+            }
+        }
+
+
         val cartViewModel = org.example.fake_store_app.shared.components.ViewModelStore.cartViewModel
         val cartItems = cartViewModel.cartList.collectAsState()
 
@@ -117,7 +133,12 @@ object CartScreen : Screen {
 
 
                     Button(
-                        onClick = { /* handle payment */ },
+                        onClick = {
+                            confirmCheckout(cartItems.value)
+                            cartViewModel.clearCart()
+                            var a = getOrderHistory()
+                            println("Order history size: ${a.toString()}")
+                        },
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = primaryColor)

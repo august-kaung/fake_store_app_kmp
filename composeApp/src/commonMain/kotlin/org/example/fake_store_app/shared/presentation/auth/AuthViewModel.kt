@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.example.fake_store_app.shared.data.model.repository.AuthRepository
+import prefs.Prefs
 
 
 sealed class AuthUiState {
@@ -29,6 +30,7 @@ class AuthViewModel(private val repository: AuthRepository) {
                 val response = repository.login(username, password)
                 println("res : $response")
                 _state.value = AuthUiState.Success(response.token)
+                Prefs.putBoolean("islogin", true)
             } catch (e: Exception) {
                 println("Login error: ${e.message}")
                 e.printStackTrace()
